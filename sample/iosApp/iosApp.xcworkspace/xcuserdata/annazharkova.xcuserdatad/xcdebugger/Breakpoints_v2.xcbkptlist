@@ -46,13 +46,13 @@
             filePath = "iosApp/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "25"
-            endingLineNumber = "25"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
             landmarkName = "loadRequest()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "604D7D6D-2E42-4062-B4AB-07B01627E566 - a8abce848235176c"
+                  uuid = "604D7D6D-2E42-4062-B4AB-07B01627E566 - a8abce848235172e"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -62,24 +62,24 @@
                   urlString = "file:///Users/annazharkova/kmm-concurrency-helper/sample/iosApp/iosApp/ContentView.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "25"
-                  endingLineNumber = "25"
-                  offsetFromSymbolStart = "20">
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "780">
                </Location>
                <Location
-                  uuid = "604D7D6D-2E42-4062-B4AB-07B01627E566 - 483a547c151be359"
+                  uuid = "604D7D6D-2E42-4062-B4AB-07B01627E566 - 5426f70e9f487d34"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Any&gt;) -&gt; () in iosApp.TestModel.loadRequest() -&gt; ()"
+                  symbolName = "closure #1 (__C.SharedResponse) -&gt; () in iosApp.TestModel.loadRequest() -&gt; ()"
                   moduleName = "iosApp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/annazharkova/kmm-concurrency-helper/sample/iosApp/iosApp/ContentView.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "26"
-                  endingLineNumber = "26"
-                  offsetFromSymbolStart = "20">
+                  startingLineNumber = "28"
+                  endingLineNumber = "28"
+                  offsetFromSymbolStart = "95">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -94,8 +94,24 @@
             filePath = "iosApp/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
+            startingLineNumber = "28"
+            endingLineNumber = "28"
+            landmarkName = "loadRequest()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B97BD622-38CB-47EC-B104-3CC83C0F0B03"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "iosApp/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "29"
+            endingLineNumber = "29"
             landmarkName = "loadRequest()"
             landmarkType = "7">
          </BreakpointContent>

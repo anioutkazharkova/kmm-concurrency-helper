@@ -19,11 +19,15 @@ struct ContentView_Previews: PreviewProvider {
 }
 
 class TestModel : ObservableObject {
-    lazy var client = NetworkClient()
+    var client = HttpClient()
     
     func loadRequest() {
-        client.request{ (json) in
-           print(json)
+        let request = Request(url: "https://newsapi.org/v2/top-headlines?language=en", method: Method.get, headers: ["X-Api-Key": "5b86b7593caa4f009fea285cc74129e2", "Content-Type": "application/json", "Accept":"application/json"])
+        
+        client.request(request: request){ (response) in
+            if let content = response.content {
+                print("content: \(content)")
+            }
         }
     }
 }
