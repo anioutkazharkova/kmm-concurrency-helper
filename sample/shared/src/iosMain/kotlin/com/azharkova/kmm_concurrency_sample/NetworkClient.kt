@@ -3,7 +3,6 @@ package com.azharkova.kmm_concurrency_sample
 import platform.Foundation.*
 import platform.darwin.NSObject
 import platform.darwin.dispatch_async
-import platform.darwin.dispatch_async_f
 import platform.darwin.dispatch_get_main_queue
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.TransferMode
@@ -12,7 +11,7 @@ import kotlin.native.concurrent.freeze
 
 
 class ResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
-    var parent:Parent? = null
+    var completion: ((Any?)->Unit)? = null
     override fun URLSession(
         session: NSURLSession,
         dataTask: NSURLSessionDataTask,
@@ -21,7 +20,10 @@ class ResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
        NSLog("%f", didReceiveData.length)
        val json = NSString.create(didReceiveData, NSUTF8StringEncoding)
         NSLog("Answer: %@",json)
-        parent?.callback(json)
+        main { completion?.invoke(json) }
+        /*dispatch_async(dispatch_get_main_queue()) {
+            completion?.invoke(json)
+        }*/
     }
 
     override fun URLSession(
@@ -33,57 +35,33 @@ class ResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
     }
 }
 
-interface Parent {
-    fun callback(callback:Any?)
-}
+    actual class NetworkClient : INetworkClient {
 
-    actual class NetworkClient : INetworkClient, Parent {
-        @ThreadLocal
-        companion object {
-            val instance = NetworkClient()
+    actual override fun request(completion: (Any?)->Unit) {
+        val responseReader = ResponseReader().apply { this.completion = completion
         }
-        val responseReader = ResponseReader()
         val urlSession =
-            NSURLSession.sessionWithConfiguration(NSURLSessionConfiguration.defaultSessionConfiguration, responseReader.apply { parent = NetworkClient.instance}.freeze(),
-                delegateQueue = NSOperationQueue.currentQueue())
-
-        override fun callback(callback: Any?) {
-            dispatch_async(dispatch_get_main_queue()) {
-                NSLog("requst main: %@", callback)
+            NSURLSession.sessionWithConfiguration(
+                NSURLSessionConfiguration.defaultSessionConfiguration, responseReader.freeze(),
+                delegateQueue = NSOperationQueue.currentQueue()
+            )
+        val urlRequest =
+            NSMutableURLRequest(NSURL.URLWithString("https://newsapi.org/v2/top-headlines?language=en")!!).apply {
+                setAllHTTPHeaderFields(mapOf("X-Api-Key" to "5b86b7593caa4f009fea285cc74129e2"))
             }
+
+        fun doRequest() {
+            val task = urlSession.freeze().dataTaskWithRequest(urlRequest)
+            task?.resume()
         }
 
-    var task: NSURLSessionDataTask? = null
-    private val worker: Worker = Worker.start()
-
-    actual override fun request(completion: (String)->Unit) {
         background({
             doRequest()
-        }, completion)
-//}
-//}) {
-
-//}
-    }
-
-
-    private fun doRequest() {
-        var urlRequest =
-            NSMutableURLRequest(NSURL.URLWithString("https://newsapi.org/v2/top-headlines?language=en")!!)
-        urlRequest.setAllHTTPHeaderFields(mapOf("X-Api-Key" to "5b86b7593caa4f009fea285cc74129e2"))
-
-       val task = urlSession.freeze().dataTaskWithRequest(urlRequest)/* { data, error, response ->
-        data?.let {
-            val json = NSString.create(it, NSUTF8StringEncoding)
-            NSLog("%s", json)
-
-        }
-    }*/
-        task?.resume()
+        })
     }
 }
 
-fun background(block: () -> Unit,completion: (String)->Unit) {
+fun background(block: () -> Unit) {
     val future = worker.execute(TransferMode.SAFE, { block.freeze() }) {
         it()
     }
@@ -93,6 +71,15 @@ fun background(block: () -> Unit,completion: (String)->Unit) {
              completion?.invoke("test")
          }
     }*/
+}
+
+fun main(block:()->Unit) {
+    block.freeze().apply {
+        val freezedBlock = this
+        dispatch_async(dispatch_get_main_queue()) {
+            freezedBlock()
+        }
+    }
 }
 
 private val worker = Worker.start()
