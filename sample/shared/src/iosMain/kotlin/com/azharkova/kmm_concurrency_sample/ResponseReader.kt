@@ -1,5 +1,6 @@
 package com.azharkova.kmm_concurrency_sample
 
+import kotlinx.coroutines.CompletableDeferred
 import platform.Foundation.*
 import platform.darwin.NSObject
 

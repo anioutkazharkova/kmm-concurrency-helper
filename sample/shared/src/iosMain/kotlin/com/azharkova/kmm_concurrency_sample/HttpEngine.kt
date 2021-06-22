@@ -1,5 +1,7 @@
 package com.azharkova.kmm_concurrency_sample
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import platform.Foundation.*
 
 class HttpEngine : ResponseListener {
@@ -50,14 +52,15 @@ class HttpEngine : ResponseListener {
         newValue += chunks.value
         newValue += data.toByteArray()
         chunks.value = newValue.share()
+        //chunkFlow.value = newValue.share()
     }
 
-    private fun clear(){
+    private fun clear() {
         clearChunks()
         completion = null
     }
 
     private fun clearChunks() {
-        chunks.value =  ByteArray(0).share()
+        chunks.value = ByteArray(0).share()
     }
 }

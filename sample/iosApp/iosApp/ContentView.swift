@@ -6,7 +6,7 @@ struct ContentView: View {
     @ObservedObject var model = TestModel()
 
 	var body: some View {
-        Text(greet).onAppear(perform: {
+        Text(verbatim: model.text).onAppear(perform: {
             model.loadRequest()
         })
 	}
@@ -20,14 +20,18 @@ struct ContentView_Previews: PreviewProvider {
 
 class TestModel : ObservableObject {
     var client = HttpClient()
+    @Published var text: String = ""
     
     func loadRequest() {
         let request = Request(url: "https://newsapi.org/v2/top-headlines?language=en", method: Method.get, headers: ["X-Api-Key": "5b86b7593caa4f009fea285cc74129e2", "Content-Type": "application/json", "Accept":"application/json"])
-        
-        client.request(request: request){ (response) in
+        client.request(request: request) { unit, error in
+            self.text = "completed"
+        }
+      /*  client.request(request: request){ (response) in
             if let content = response.content {
                 print("content: \(content)")
             }
-        }
+        }*/
+        //client.req
     }
 }

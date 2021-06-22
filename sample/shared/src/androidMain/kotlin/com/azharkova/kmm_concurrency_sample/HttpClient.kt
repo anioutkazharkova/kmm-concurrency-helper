@@ -4,4 +4,8 @@ actual class HttpClient : IHttpClient {
     actual override fun request(request: Request, completion: (Response)->Unit) {
         TODO("Not yet implemented")
     }
+
+    actual override suspend fun request(request: Request) {
+        TODO("Not yet implemented")
+    }
 }
