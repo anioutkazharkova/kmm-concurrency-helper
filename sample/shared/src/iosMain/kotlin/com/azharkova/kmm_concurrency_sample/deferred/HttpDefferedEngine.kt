@@ -4,7 +4,6 @@ import com.azharkova.kmm_concurrency_sample.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import platform.Foundation.*
 
 class HttpDefferedEngine {
@@ -13,7 +12,7 @@ class HttpDefferedEngine {
     val engineScope: CoroutineScope = CoroutineScope(ioDispatcher + engineJob)
 
     suspend fun request(request: Request): Response {
-        val responseReader = DefferedResponseReader()
+        val responseReader = FlowResponseReader()//ChannelResponderReader()//DefferedResponseReader()//ChannelResponderReader()//DefferedResponseReader()
         val urlSession =
             NSURLSession.sessionWithConfiguration(
                 NSURLSessionConfiguration.defaultSessionConfiguration, responseReader,//.share(),

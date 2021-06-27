@@ -2,15 +2,25 @@ package com.azharkova.kmm_concurrency_sample.deferred
 
 import com.azharkova.kmm_concurrency_sample.*
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import platform.Foundation.*
 import platform.darwin.NSObject
 
-class DefferedResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
-    private var chunks = ByteArray(0).atomic()
+class FlowResponseReader : NSObject(),
+    NSURLSessionDataDelegateProtocol {
+    private var chunksFlow = MutableStateFlow(ByteArray(0))
     private var rawResponse = CompletableDeferred<Response>()
 
     suspend fun awaitResponse(): Response {
-        return rawResponse.await().share()
+        var chunks = ByteArray(0)
+
+        chunksFlow.onEach {
+            chunks += it
+        }.launchIn(scope)
+        val response = rawResponse.await()
+        response.content = chunks.string()
+        return response.share()
     }
 
     override fun URLSession(
@@ -31,12 +41,8 @@ class DefferedResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
     }
 
     fun completed(code: Long, error: Error?) {
-        val content = chunks.value.string()
-
         if (!rawResponse.isCompleted) {
-
-            NSLog("completed: %s",content)
-            rawResponse.complete(Response(code, content, error))
+            rawResponse.complete(Response(code, "", error))
             clearChunks()
         } else {
             NSLog("already completed:")
@@ -44,13 +50,10 @@ class DefferedResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
     }
 
     private fun updateChunks(data: NSData) {
-        var newValue = ByteArray(0)
-        newValue += chunks.value
-        newValue += data.toByteArray()
-        chunks.value = newValue.share()
+        val bytes = data.toByteArray().share()
+        chunksFlow.tryEmit(bytes)
     }
 
     private fun clearChunks() {
-        chunks.value = ByteArray(0).share()
     }
 }

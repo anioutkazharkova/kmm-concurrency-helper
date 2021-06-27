@@ -2,15 +2,29 @@ package com.azharkova.kmm_concurrency_sample.deferred
 
 import com.azharkova.kmm_concurrency_sample.*
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.launch
 import platform.Foundation.*
 import platform.darwin.NSObject
 
-class DefferedResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
-    private var chunks = ByteArray(0).atomic()
+class ChannelResponderReader : NSObject(),
+    NSURLSessionDataDelegateProtocol {
+    private var chunks = Channel<ByteArray>(UNLIMITED)
     private var rawResponse = CompletableDeferred<Response>()
 
     suspend fun awaitResponse(): Response {
-        return rawResponse.await().share()
+        var array = ByteArray(0)
+        var response = rawResponse.await()
+        chunks.consumeEach {
+            array += it
+        }
+
+       response.content = array.string()
+        NSLog("ready")
+        return response.share()
     }
 
     override fun URLSession(
@@ -31,26 +45,26 @@ class DefferedResponseReader: NSObject(), NSURLSessionDataDelegateProtocol {
     }
 
     fun completed(code: Long, error: Error?) {
-        val content = chunks.value.string()
 
         if (!rawResponse.isCompleted) {
+            NSLog("completed:")
 
-            NSLog("completed: %s",content)
-            rawResponse.complete(Response(code, content, error))
-            clearChunks()
+            chunks.close()
+            rawResponse.complete(Response(code, "", error))
         } else {
+            chunks.cancel()
             NSLog("already completed:")
         }
     }
 
     private fun updateChunks(data: NSData) {
-        var newValue = ByteArray(0)
-        newValue += chunks.value
-        newValue += data.toByteArray()
-        chunks.value = newValue.share()
+        val bytes = data.toByteArray()
+        scope.launch {
+            chunks.send(bytes)
+        }
     }
 
     private fun clearChunks() {
-        chunks.value = ByteArray(0).share()
+        chunks.close()
     }
 }

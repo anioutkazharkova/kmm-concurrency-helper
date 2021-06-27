@@ -8,8 +8,10 @@ import platform.darwin.dispatch_get_main_queue
 import kotlin.coroutines.CoroutineContext
 import kotlin.native.concurrent.freeze
 
+
 val uiDispatcher: CoroutineContext = MainDispatcher
 val ioDispatcher: CoroutineContext = MainDispatcher
+val scope = CoroutineScope(ioDispatcher)
 
 @ThreadLocal
 object MainDispatcher : CoroutineDispatcher() {

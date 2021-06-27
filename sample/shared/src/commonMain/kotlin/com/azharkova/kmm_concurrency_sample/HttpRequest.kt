@@ -10,4 +10,4 @@ enum class Method(val value: String) {
 
 data class Request(val url: String, val method: Method, val headers: Map<Any?,String>)
 
-data class Response(val code: Long = 0, var content: String? = null, val error: Error? = null)
+data class Response(var code: Long = 0, var content: String? = null, var error: Error? = null)

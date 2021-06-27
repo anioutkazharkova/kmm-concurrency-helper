@@ -14,3 +14,15 @@ internal fun NSData.toByteArray(): ByteArray {
 internal fun ByteArray.string():String {
     return this.decodeToString(0,this.size)
 }
+
+internal fun ByteArray.add(data: NSData):ByteArray {
+    var bytes = this
+    bytes += data.toByteArray()
+    return bytes
+}
+
+internal fun ByteArray.add(data: ByteArray):ByteArray {
+    var bytes = this
+    bytes += data
+    return bytes
+}
